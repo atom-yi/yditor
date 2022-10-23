@@ -1,8 +1,16 @@
-import { reactive } from 'vue';
+import { createStore } from 'vuex';
 
-export const store = reactive({
-    content: '',
-    updateContent(text) {
-        this.content = text;
+export default createStore({
+    state: {
+        editorContent: '',
+    },
+    mutations: {
+
+    },
+    actions: {
+
+    },
+    modules: {
+        
     }
 });
