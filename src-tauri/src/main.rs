@@ -3,14 +3,11 @@
   windows_subsystem = "windows"
 )]
 
-#[tauri::command]
-fn greet(name: &str) -> String {
-   format!("Hello, {}!", name)
-}
+mod yfile;
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![greet])
+    .invoke_handler(tauri::generate_handler![yfile::list_files_in_directory])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

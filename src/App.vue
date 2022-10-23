@@ -5,7 +5,11 @@ import Sidebar from './components/Sidebar.vue';
 
 <template>
   <a-layout id="main">
-    <a-layout-sider v-show="true"><Sidebar/></a-layout-sider>
+    <a-layout-sider
+      theme="light" 
+      v-show="true">
+      <Sidebar/>
+    </a-layout-sider>
     <a-layout-content><Editor/></a-layout-content>
   </a-layout>
 </template>
