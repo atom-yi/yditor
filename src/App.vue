@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar.vue';
 <template>
   <a-layout id="main">
     <a-layout-sider
+      :width="260"
       theme="light" 
       v-show="true">
       <Sidebar/>

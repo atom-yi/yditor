@@ -1,27 +1,19 @@
 <script setup>
-import { ref, reactive,  onMounted } from 'vue';
-import { message } from 'ant-design-vue';
-import { invoke } from "@tauri-apps/api";
+import { reactive,  onMounted } from 'vue';
+import { invoke } from '@tauri-apps/api';
+import { open } from '@tauri-apps/api/dialog';
 
 // data
 const treeData = reactive({
-    baseDir: '/Users/junyiwu/workspace/code',
-    list: [
-        {
-            title: '',
-            key: '',
-            isLeaf: false,
-            children: []
-        }
-    ],
+    baseDir: '',
+    list: [],
     expendedFolderKeys: [],
     selectedFilesKeys: [],
 });
 
 // mounted
 onMounted(() => {
-    treeData.list[0].title = treeData.baseDir;
-    treeData.list[0].key = treeData.baseDir;
+
 });
 
 // methods
@@ -32,6 +24,19 @@ function listFiles(dir) {
     .then((resp) => {
         buildFileEntries(resp);
     });
+}
+function openFolder() {
+    open({
+        directory: true,
+        multiple: false,
+    }).then(selected => {
+        if (selected) {
+            openFileTree(selected);
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+    return false;
 }
 
 // internal methods
@@ -55,7 +60,6 @@ function buildFileEntries(fileInfos) {
 
     // 遍历路径追加节点
     let parent = findParent(treeData.list[0], parentPath);
-    console.log(parent);
     if (parent != null) {
         parent.children = fileInfosToTreeData(fileInfos);
     }
@@ -95,12 +99,24 @@ function fileInfoToEntryInfo(fileInfo) {
         children: [],
     };
 }
+function openFileTree(baseDir) {
+    treeData.baseDir = baseDir;
+    treeData.list = [
+        {
+            title: '目录',
+            key: baseDir,
+            isLeaf: false,
+            children: []
+        }
+    ];
+    listFiles(treeData.list[0]);
+}
 
 </script>
 
 <template>
     <div id="sidebar">
-        <a-button type="primary">打开文件夹</a-button>
+        <a-button type="primary" @click="openFolder">打开文件夹</a-button>
         <a-directory-tree
             :expendedKeys="treeData.expendedFolderKeys"
             :selectedKeys="treeData.selectedFilesKeys"
@@ -114,6 +130,9 @@ function fileInfoToEntryInfo(fileInfo) {
 
 <style scoped>
 #sidebar {
-    height: 100%;
+    height: 100vh;
+    width: 100%;
+    overflow: auto;
+    overflow-y: auto;
 }
 </style>
