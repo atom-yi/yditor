@@ -1,4 +1,4 @@
-use std::{path::Path, fs, cmp::Ordering};
+use std::{path::Path, cmp::Ordering, fs::{File, self}, io::Read};
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
@@ -45,4 +45,16 @@ pub fn list_files_in_directory(dir: &Path) -> Result<Vec<YFile>, String> {
         return Ok(files);
     }
     return Ok(Vec::new());
+}
+
+#[tauri::command]
+pub fn read_file(filepath: &Path) -> Result<String, String> {
+    println!("Read file. filepath: {}", filepath.display().to_string());
+    if filepath.is_file() {
+        let mut file = File::open(filepath).map_err(|err| err.to_string())?;
+        let mut content  = String::new();
+        file.read_to_string(&mut content).map_err(|err| err.to_string())?;
+        return Ok(content);
+    }
+    return Err("read file failed!".to_string());
 }

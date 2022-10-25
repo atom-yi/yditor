@@ -2,18 +2,13 @@
 import { reactive,  onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
 import { open } from '@tauri-apps/api/dialog';
+import emitter from '../util/mitt';
 
 // data
 const treeData = reactive({
     baseDir: '',
     list: [],
-    expendedFolderKeys: [],
-    selectedFilesKeys: [],
-});
-
-// mounted
-onMounted(() => {
-
+    expendedKeys: [],
 });
 
 // methods
@@ -38,6 +33,17 @@ function openFolder() {
     });
     return false;
 }
+function clickTreeNode(selectedKeys, event) {
+    if (selectedKeys.length > 1) {
+        // 不支持同时打开多个文件
+        return;
+    } else if (!event.node.isLeaf) {
+        // 文件夹不能加载内容到编辑器
+        return;
+    }
+    console.log("open file: " + event);
+    emitter.emit('loadFileContentToEditor', event.node.key);
+}
 
 // internal methods
 function buildFileEntries(fileInfos) {
@@ -55,6 +61,7 @@ function buildFileEntries(fileInfos) {
     // 加载根目录文件
     if (parentPath === treeData.baseDir) {
         treeData.list[0].children = fileInfosToTreeData(fileInfos);
+        treeData.expendedKeys.push(treeData.baseDir);
         return;
     }
 
@@ -84,7 +91,6 @@ function findParent(node, parentPath) {
     for (let i = 0; i < children.length; i++) {
         let child = children[i];
         if (child.isLeaf || !parentPath.startsWith(child.key)) {
-            console.log("不满足")
             continue;
         }
         return findParent(child, parentPath);
@@ -117,14 +123,15 @@ function openFileTree(baseDir) {
 <template>
     <div id="sidebar">
         <a-button type="primary" @click="openFolder">打开文件夹</a-button>
-        <a-directory-tree
-            :expendedKeys="treeData.expendedFolderKeys"
-            :selectedKeys="treeData.selectedFilesKeys"
-            multiple
+        <a-tree
             blockNode
+            v-model:expandedKeys="treeData.expendedKeys"
+            :showLine="true"
+            :autoExpandParent="true"
             :tree-data="treeData.list"
             :load-data="listFiles"
-        ></a-directory-tree>
+            @select="clickTreeNode"
+        ></a-tree>
     </div>
 </template>
 

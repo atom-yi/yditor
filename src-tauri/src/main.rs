@@ -7,7 +7,10 @@ mod yfile;
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![yfile::list_files_in_directory])
+    .invoke_handler(tauri::generate_handler![
+      yfile::list_files_in_directory,
+      yfile::read_file,
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
