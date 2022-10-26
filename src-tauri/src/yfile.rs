@@ -1,4 +1,4 @@
-use std::{path::Path, cmp::Ordering, fs::{File, self}, io::Read};
+use std::{path::Path, cmp::Ordering, fs::{File, self}, io::{Read, Write}};
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
@@ -34,7 +34,6 @@ fn create_by_dir_entry(entry: fs::DirEntry) -> YFile {
 
 #[tauri::command]
 pub fn list_files_in_directory(dir: &Path) -> Result<Vec<YFile>, String> {
-    println!("Listing files in directory. dir: {}", dir.display().to_string());
     if dir.is_dir() {
         let paths = fs::read_dir(dir).map_err(|err| err.to_string())?;
         let mut files = Vec::new();
@@ -49,7 +48,6 @@ pub fn list_files_in_directory(dir: &Path) -> Result<Vec<YFile>, String> {
 
 #[tauri::command]
 pub fn read_file(filepath: &Path) -> Result<String, String> {
-    println!("Read file. filepath: {}", filepath.display().to_string());
     if filepath.is_file() {
         let mut file = File::open(filepath).map_err(|err| err.to_string())?;
         let mut content  = String::new();
@@ -57,4 +55,16 @@ pub fn read_file(filepath: &Path) -> Result<String, String> {
         return Ok(content);
     }
     return Err("read file failed!".to_string());
+}
+
+#[tauri::command]
+pub fn save_to_file(filepath: &Path, content: String) -> Result<String, String> {
+    println!("filepath: {}", filepath.display());
+    if filepath.is_file() {
+        let mut file = File::create(filepath).map_err(|err| err.to_string())?;
+        file.write_all(content.as_bytes()).map_err(|err| err.to_string())?;
+        file.flush().map_err(|err| err.to_string())?;
+        return Ok("write to file success".to_string());
+    }
+    return Err("write to file failed!".to_string());
 }

@@ -10,6 +10,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       yfile::list_files_in_directory,
       yfile::read_file,
+      yfile::save_to_file,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

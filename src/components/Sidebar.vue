@@ -41,7 +41,6 @@ function clickTreeNode(selectedKeys, event) {
         // 文件夹不能加载内容到编辑器
         return;
     }
-    console.log("open file: " + event);
     emitter.emit('loadFileContentToEditor', event.node.key);
 }
 
