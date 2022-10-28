@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^6.1.0",
     "@tauri-apps/api": "^1.1.0",
     "ant-design-vue": "^3.2.13",
     "mitt": "^3.0.0",

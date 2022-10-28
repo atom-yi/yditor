@@ -3,6 +3,8 @@ import { reactive,  onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
 import { open } from '@tauri-apps/api/dialog';
 import emitter from '../util/mitt';
+import { Tooltip } from 'ant-design-vue';
+import { FolderOpenOutlined } from '@ant-design/icons-vue';
 
 // data
 const treeData = reactive({
@@ -121,7 +123,11 @@ function openFileTree(baseDir) {
 
 <template>
     <div id="sidebar">
-        <a-button type="primary" @click="openFolder">打开文件夹</a-button>
+        <a-tooltip title="打开文件夹">
+            <a-button type="primary" @click="openFolder">
+                <folder-open-outlined />
+            </a-button>    
+        </a-tooltip>
         <a-tree
             blockNode
             v-model:expandedKeys="treeData.expendedKeys"
