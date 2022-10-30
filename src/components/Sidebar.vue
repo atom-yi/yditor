@@ -3,7 +3,7 @@ import { reactive,  onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api';
 import { open } from '@tauri-apps/api/dialog';
 import emitter from '../util/mitt';
-import { Tooltip } from 'ant-design-vue';
+import { Tooltip, Dropdown, Menu, Tree } from 'ant-design-vue';
 import { FolderOpenOutlined } from '@ant-design/icons-vue';
 
 // data
@@ -44,6 +44,17 @@ function clickTreeNode(selectedKeys, event) {
         return;
     }
     emitter.emit('loadFileContentToEditor', event.node.key);
+}
+function onContextMenuClick(treeKey, menuKey) {
+    if (menuKey == 'createNewFolder') {
+        createItem(treeKey, true);
+    } else if (menuKey == 'createNewFile') {
+        createItem(treeKey, false);
+    } else if (menuKey == 'deleteItem') {
+        deleteItem(treeKey);
+    } else if (menuKey == 'refreshFolder') {
+        refreshFolder(treeKey);
+    }
 }
 
 // internal methods
@@ -118,7 +129,15 @@ function openFileTree(baseDir) {
     ];
     listFiles(treeData.list[0]);
 }
-
+function createItem(treeKey, isDirectory) {
+    // todo
+}
+function deleteItem(filepath) {
+    // todo
+}
+function refreshFolder(filepath) {
+    // todo
+}
 </script>
 
 <template>
@@ -136,7 +155,29 @@ function openFileTree(baseDir) {
             :tree-data="treeData.list"
             :load-data="listFiles"
             @select="clickTreeNode"
-        ></a-tree>
+        >
+            <template #title="{ key: treeKey, title, isLeaf }">
+                <a-dropdown :trigger="['contextmenu']">
+                    <span>{{ title }}</span>
+                    <template #overlay>
+                        <a-menu @click="({ key: menuKey }) => onContextMenuClick(treeKey, menuKey)">
+                            <a-menu-item key="createNewFolder" v-if="!isLeaf">
+                                创建文件夹
+                            </a-menu-item>
+                            <a-menu-item key="createNewFile" v-if="!isLeaf">
+                                创建文件
+                            </a-menu-item>
+                            <a-menu-item key="deleteItem">
+                                删除{{ isLeaf ? '文件' : '文件夹' }}
+                            </a-menu-item>
+                            <a-menu-item key="refreshFolder">
+                                刷新目录
+                            </a-menu-item>
+                        </a-menu>
+                    </template>
+                </a-dropdown>
+            </template>
+        </a-tree>
     </div>
 </template>
 
