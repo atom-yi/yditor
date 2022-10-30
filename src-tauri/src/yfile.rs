@@ -59,12 +59,32 @@ pub fn read_file(filepath: &Path) -> Result<String, String> {
 
 #[tauri::command]
 pub fn save_to_file(filepath: &Path, content: String) -> Result<String, String> {
-    println!("filepath: {}", filepath.display());
-    if filepath.is_file() {
-        let mut file = File::create(filepath).map_err(|err| err.to_string())?;
-        file.write_all(content.as_bytes()).map_err(|err| err.to_string())?;
-        file.flush().map_err(|err| err.to_string())?;
-        return Ok("write to file success".to_string());
+    println!("save file to: {}", filepath.display());
+    // 非法路径：无法获取父目录
+    let parentFilepathOpt = filepath.parent();
+    if parentFilepathOpt.is_none() {
+        return Err("can not get parent path".to_string());
     }
-    return Err("write to file failed!".to_string());
+
+    // 路径存在，且不是一个文件
+    if filepath.exists() && !filepath.is_file() {
+        return Err(format!("path exist and not a file: {}", filepath.display()));
+    }
+
+    // 父目录不存在则创建
+    let parentFilepath = parentFilepathOpt.unwrap();
+    if parentFilepath.exists() {
+        if !parentFilepath.is_dir() {
+            return Err("parent path is not a directory".to_string());
+        }
+    } else {
+        fs::create_dir_all(parentFilepath).map_err(|err| err.to_string());
+        println!("create folder success. folder path:{}", parentFilepath.display());
+    }
+
+    // 写入文件
+    let mut file = File::create(filepath).map_err(|err| err.to_string())?;
+    file.write_all(content.as_bytes()).map_err(|err| err.to_string())?;
+    file.flush().map_err(|err| err.to_string())?;
+    return Ok("write to file success".to_string());
 }
