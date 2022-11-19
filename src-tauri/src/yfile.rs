@@ -72,14 +72,14 @@ pub fn save_to_file(filepath: &Path, content: String) -> Result<String, String> 
     }
 
     // 父目录不存在则创建
-    let parentFilepath = parentFilepathOpt.unwrap();
-    if parentFilepath.exists() {
-        if !parentFilepath.is_dir() {
+    let parent_file_path = parentFilepathOpt.unwrap();
+    if parent_file_path.exists() {
+        if !parent_file_path.is_dir() {
             return Err("parent path is not a directory".to_string());
         }
     } else {
-        fs::create_dir_all(parentFilepath).map_err(|err| err.to_string());
-        println!("create folder success. folder path:{}", parentFilepath.display());
+        fs::create_dir_all(parent_file_path).map_err(|err| err.to_string())?;
+        println!("create folder success. folder path:{}", parent_file_path.display());
     }
 
     // 写入文件
@@ -87,4 +87,19 @@ pub fn save_to_file(filepath: &Path, content: String) -> Result<String, String> 
     file.write_all(content.as_bytes()).map_err(|err| err.to_string())?;
     file.flush().map_err(|err| err.to_string())?;
     return Ok("write to file success".to_string());
+}
+
+#[tauri::command]
+pub fn create_file(filepath: &Path) -> Result<String, String> {
+    unimplemented!("create_file")
+}
+
+#[tauri::command]
+pub fn create_dir(filepath: &Path) -> Result<String, String> {
+    unimplemented!("create_dir")
+}
+
+#[tauri::command]
+pub fn move_file_to_dir(filepath: &Path, dir_path: &Path) -> Result<String, String> {
+    unimplemented!("move filepath into dir_path")
 }
